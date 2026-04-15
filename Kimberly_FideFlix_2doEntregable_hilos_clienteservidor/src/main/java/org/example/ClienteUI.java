@@ -5,8 +5,6 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.*;
 import java.net.Socket;
-import java.sql.Connection;
-
 
 public class ClienteUI extends JFrame {
     private static final String HOST = "127.0.0.1";
@@ -15,7 +13,7 @@ public class ClienteUI extends JFrame {
     private JTextField field1, field2, field3;
     private JTable table;
     private DefaultTableModel tableModel;
-    private JButton addButton, updateButton, deleteButton;
+    private JButton verDocumentosButton, agregarDocumentoButton, borrarDocumentoButton;
 
     public ClienteUI() {
         setTitle("Cliente UI");
@@ -51,50 +49,42 @@ public class ClienteUI extends JFrame {
 
         // Buttons
         JPanel buttonPanel = new JPanel();
-        addButton = new JButton("Add");
-        updateButton = new JButton("Update");
-        deleteButton = new JButton("Delete");
-        buttonPanel.add(addButton);
-        buttonPanel.add(updateButton);
-        buttonPanel.add(deleteButton);
+        verDocumentosButton = new JButton("Ver");
+        agregarDocumentoButton = new JButton("Agregar");
+        borrarDocumentoButton = new JButton("Borrar");
+        buttonPanel.add(verDocumentosButton);
+        buttonPanel.add(agregarDocumentoButton);
+        buttonPanel.add(borrarDocumentoButton);
 
-        // Layout
         setLayout(new BorderLayout());
         add(inputPanel, BorderLayout.NORTH);
         add(tableScroll, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
+
+        // Add action listener for "Ver" button
+        verDocumentosButton.addActionListener(e -> {
+            try (
+                    Socket socket = new Socket(HOST, PORT);
+                    DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                    DataInputStream dis = new DataInputStream(socket.getInputStream())
+            ) {
+                dos.writeUTF("verDocumentos");
+                dos.flush();
+
+                String response = dis.readUTF();
+                System.out.println("📥 Server response: " + response);
+
+                // Optionally, update the table with the response here
+
+            } catch (IOException ex) {
+                System.out.println("❌ Client error: " + ex.getMessage());
+            }
+        });
     }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             new ClienteUI().setVisible(true);
         });
-
-        try (
-                Socket socket = new Socket(HOST, PORT);
-                DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-                DataInputStream dis = new DataInputStream(socket.getInputStream())
-        ) {
-            System.out.println("📤 Sending user and password...");
-            dos.writeUTF("user");
-            dos.writeUTF("password");
-            dos.flush();
-
-            String response = dis.readUTF();
-            System.out.println("📥 Server response: " + response);
-
-
-            /*Connection conn = Conexion.getConnection();
-            if (conn != null) {
-                System.out.println("Connection successful!");
-            } else {
-                System.out.println("Connection failed!");
-            }
-            Conexion.getAllDocumentales();*/
-
-        } catch (IOException e) {
-            System.out.println("❌ Client error: " + e.getMessage());
-        }
     }
-
 }

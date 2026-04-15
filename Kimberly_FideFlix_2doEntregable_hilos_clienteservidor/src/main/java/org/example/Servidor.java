@@ -3,6 +3,7 @@ package org.example;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.List;
 
 public class Servidor {
 
@@ -33,17 +34,16 @@ public class Servidor {
                 DataInputStream dis = new DataInputStream(socket.getInputStream());
                 DataOutputStream dos = new DataOutputStream(socket.getOutputStream())
         ) {
-            // Receive data
-            String user = dis.readUTF();
-            String password = dis.readUTF();
-            CargaDatosInicial carga = new CargaDatosInicial();
-
-            System.out.println("📥 Received user: " + user);
-            System.out.println("📥 Received password: " + password);
-            String responseText = "Hola soy el SERVER - mensaje recibido";
-
-            // IMPORTANT: write boolean and flush
-            dos.writeUTF(responseText);
+            String accion = dis.readUTF();
+            System.out.println("📥 Received action: " + accion);
+            Conexion conn = new Conexion();
+            List<DocumentalPojo> documentales = null;
+            if ("verDocumentos".equals(accion)) {
+                documentales = conn.getAllDocumentales();
+            }
+            String response = (documentales != null) ? documentales.toString() : "[]";
+            System.out.println("📤 Sending response: " + response);
+            dos.writeUTF(response);
             dos.flush();
 
         } catch (IOException e) {
