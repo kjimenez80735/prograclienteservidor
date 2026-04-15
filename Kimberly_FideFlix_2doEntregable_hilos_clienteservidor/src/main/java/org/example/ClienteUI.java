@@ -75,14 +75,22 @@ public class ClienteUI extends JFrame {
                 DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
                 DataInputStream dis = new DataInputStream(socket.getInputStream())
         ) {
+            System.out.println("📤 Sending user and password...");
+            dos.writeUTF("user");
+            dos.writeUTF("password");
+            dos.flush();
 
-            Connection conn = Conexion.getConnection();
+            String response = dis.readUTF();
+            System.out.println("📥 Server response: " + response);
+
+
+            /*Connection conn = Conexion.getConnection();
             if (conn != null) {
                 System.out.println("Connection successful!");
             } else {
                 System.out.println("Connection failed!");
             }
-            Conexion.getAllDocumentales();
+            Conexion.getAllDocumentales();*/
 
         } catch (IOException e) {
             System.out.println("❌ Client error: " + e.getMessage());

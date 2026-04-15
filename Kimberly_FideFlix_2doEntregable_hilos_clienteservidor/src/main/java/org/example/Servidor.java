@@ -40,14 +40,10 @@ public class Servidor {
 
             System.out.println("📥 Received user: " + user);
             System.out.println("📥 Received password: " + password);
-
-            // Simple validation (you can replace with file/db)
-            boolean isValid = carga.autenticarUsuario(user, password);
-
-            System.out.println("📤 Sending response: " + isValid);
+            String responseText = "Hola soy el SERVER - mensaje recibido";
 
             // IMPORTANT: write boolean and flush
-            dos.writeBoolean(isValid);
+            dos.writeUTF(responseText);
             dos.flush();
 
         } catch (IOException e) {
