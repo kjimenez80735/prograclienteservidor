@@ -1,12 +1,16 @@
 package org.example;
 
 import java.sql .*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Conexion {
     private static final String URL =
             "jdbc:mysql://localhost:3306/example?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
     private static final String USER = "root";
     private static final String PASSWORD = "my-secret-pw";
+
+    private DocumentalPojo documentalPojo;
 
     public static Connection getConnection() {
         try {
@@ -20,31 +24,28 @@ public class Conexion {
         }
     }
 
-    public static void getAllDocumentales() {
+    public List<DocumentalPojo> getAllDocumentales() {
+        List<DocumentalPojo> lista = new ArrayList<>();
         String query = "SELECT * FROM Documental";
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
-            System.out.println("📄 List of Documentales:");
+
             while (rs.next()) {
-                int id = rs.getInt("id");
-                String titulo = rs.getString("titulo");
-                int duracion = rs.getInt("duracion");
-                String genero = rs.getString("genero");
-                int anio = rs.getInt("anio");
-                String tema = rs.getString("tema");
-                System.out.println(
-                        id + " | " +
-                                titulo + " | " +
-                                duracion + " min | " +
-                                genero + " | " +
-                                anio + " | " +
-                                tema
-                );
+                DocumentalPojo doc = new DocumentalPojo();
+                doc.setId(rs.getInt("id"));
+                doc.setTitulo(rs.getString("titulo"));
+                doc.setDuracion(rs.getInt("duracion"));
+                doc.setGenero(rs.getString("genero"));
+                doc.setAnio(rs.getInt("anio"));
+                doc.setTema(rs.getString("tema"));
+                lista.add(doc);
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return lista;
     }
 
 }
