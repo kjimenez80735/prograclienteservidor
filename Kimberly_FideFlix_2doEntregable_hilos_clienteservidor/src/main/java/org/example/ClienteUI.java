@@ -18,7 +18,7 @@ public class ClienteUI extends JFrame {
     public ClienteUI() {
         setTitle("Cliente UI");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(600, 400);
+        setSize(800, 400);
         setLocationRelativeTo(null);
 
         // Top panel for labels and text fields
@@ -41,8 +41,8 @@ public class ClienteUI extends JFrame {
         gbc.gridx = 0; gbc.gridy = 2; inputPanel.add(label3, gbc);
         gbc.gridx = 1; gbc.gridy = 2; inputPanel.add(field3, gbc);
 
-        // Table
-        String[] columns = {"Col 1", "Col 2", "Col 3"};
+        // Table columns match DocumentalPojo fields
+        String[] columns = {"id", "titulo", "duracion", "genero", "anio", "tema"};
         tableModel = new DefaultTableModel(columns, 0);
         table = new JTable(tableModel);
         JScrollPane tableScroll = new JScrollPane(table);
@@ -63,22 +63,45 @@ public class ClienteUI extends JFrame {
 
         // Add action listener for "Ver" button
         verDocumentosButton.addActionListener(e -> {
-            try (
-                    Socket socket = new Socket(HOST, PORT);
-                    DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-                    DataInputStream dis = new DataInputStream(socket.getInputStream())
-            ) {
-                dos.writeUTF("verDocumentos");
-                dos.flush();
+            new Thread(() -> {
+                try (
+                        Socket socket = new Socket(HOST, PORT);
+                        DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                        DataInputStream dis = new DataInputStream(socket.getInputStream())
+                ) {
+                    dos.writeUTF("verDocumentos");
+                    dos.flush();
 
-                String response = dis.readUTF();
-                System.out.println("📥 Server response: " + response);
+                    String response = dis.readUTF();
+                    System.out.println("📥 Server response: " + response);
 
-                // Optionally, update the table with the response here
+                    // Parse response and update table on EDT
+                    SwingUtilities.invokeLater(() -> {
+                        tableModel.setRowCount(0); // Clear table
 
-            } catch (IOException ex) {
-                System.out.println("❌ Client error: " + ex.getMessage());
-            }
+                        // Example response: [DocumentalPojo{id=1, titulo='A', duracion=90, genero='Drama', anio=2020, tema='Nature'}, ...]
+                        String[] items = response.split("DocumentalPojo\\{");
+                        for (String item : items) {
+                            item = item.trim();
+                            if (!item.isEmpty() && !item.equals("]")) {
+                                String clean = item.replaceAll("}$", "");
+                                String[] fields = clean.split(", ");
+                                String[] row = new String[6];
+                                for (int i = 0; i < fields.length; i++) {
+                                    String[] kv = fields[i].split("=", 2);
+                                    if (kv.length == 2) {
+                                        row[i] = kv[1].replaceAll("^'|'$", ""); // Remove single quotes if present
+                                    }
+                                }
+                                tableModel.addRow(row);
+                            }
+                        }
+                    });
+
+                } catch (IOException ex) {
+                    System.out.println("❌ Client error: " + ex.getMessage());
+                }
+            }).start();
         });
     }
 
