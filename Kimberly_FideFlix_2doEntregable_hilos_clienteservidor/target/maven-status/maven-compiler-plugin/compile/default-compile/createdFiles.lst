@@ -1,0 +1,9 @@
+org\example\Serie.class
+org\example\Documental.class
+org\example\Usuario.class
+org\example\CargaDatosInicial.class
+org\example\Servidor.class
+org\example\Pelicula.class
+org\example\AudioVisual.class
+org\example\Cliente.class
+org\example\Connexion.class
