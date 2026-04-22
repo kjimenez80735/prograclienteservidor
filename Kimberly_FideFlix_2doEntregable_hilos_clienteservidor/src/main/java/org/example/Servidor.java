@@ -29,6 +29,7 @@ public class Servidor {
         }
     }
 
+    String respuesta = null;
     private static void handleClient(Socket socket) {
         try (
                 DataInputStream dis = new DataInputStream(socket.getInputStream());
@@ -38,9 +39,38 @@ public class Servidor {
             System.out.println("📥 Received action: " + accion);
             Conexion conn = new Conexion();
             List<DocumentalPojo> documentales = null;
+
             if ("verDocumentos".equals(accion)) {
                 documentales = conn.getAllDocumentales();
             }
+            if ("addTermino".equals(accion)) {
+                String[] parts = accion.split(",", 2);
+
+                if (parts.length == 2) {
+                    String palabra = parts[0];
+                    String concepto = parts[1];
+                    boolean success = conn.addTermino(palabra, concepto);
+                }
+
+                String titulo = dis.readUTF();
+                String genero = dis.readUTF();
+
+                boolean success = conn.addTermino(titulo,genero);
+                dos.writeUTF(success ? "Documental added successfully" : "Failed to add documental");
+                dos.flush();
+                return; // Exit after handling add action
+            }
+            if ("buscarTermino".equals(accion)) {
+
+
+                String titulo = dis.readUTF();
+                String respuesta = conn.buscarTermino(titulo).toString();
+
+                dos.writeUTF(respuesta);
+                dos.flush();
+                return; // Exit after handling add action
+            }
+
             String response = (documentales != null) ? documentales.toString() : "[]";
             System.out.println("📤 Sending response: " + response);
             dos.writeUTF(response);

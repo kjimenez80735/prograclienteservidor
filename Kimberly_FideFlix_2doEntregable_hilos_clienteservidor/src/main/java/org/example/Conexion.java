@@ -48,5 +48,73 @@ public class Conexion {
         return lista;
     }
 
+    // New method to persist a documental in the database
+    public boolean addDocumental(int id, String titulo, int duracion, String genero, int anio, String tema) {
+        String query = "INSERT INTO Documental (id, titulo, duracion, genero, anio, tema) VALUES (?, ?, ?, ?, ?, ?)";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            pstmt.setInt(1, id);
+            pstmt.setString(2, titulo);
+            pstmt.setInt(3, duracion);
+            pstmt.setString(4, genero);
+            pstmt.setInt(5, anio);
+            pstmt.setString(6, tema);
+
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
+    public boolean addTermino(String palabra, String concepto) {
+        String query = "INSERT INTO Terminos (palabra, concepto) VALUES (?, ?)";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            pstmt.setString(2, palabra);
+            pstmt.setString(3, concepto);
+
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Java
+    public List<Terminos> buscarTermino(String termino) {
+        List<Terminos> lista = new ArrayList<>();
+        String query = "SELECT * FROM Terminos WHERE palabra = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            pstmt.setString(1, termino);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Terminos term = new Terminos(
+                            rs.getString("palabra"),
+                            rs.getString("concepto")
+                    );
+                    lista.add(term);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
+
+
+
+
 }
 
