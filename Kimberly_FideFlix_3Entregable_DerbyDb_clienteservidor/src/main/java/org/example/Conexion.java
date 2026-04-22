@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Conexion {
-    private static final String URL =
-            "jdbc:mysql://localhost:3306/example?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+    //private static final String URL = "jdbc:mysql://localhost:3306/example?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+    private static final String URL = "jdbc:derby://localhost:2217/example;user=myuser;password=mypass";
     private static final String USER = "root";
     private static final String PASSWORD = "my-secret-pw";
 
