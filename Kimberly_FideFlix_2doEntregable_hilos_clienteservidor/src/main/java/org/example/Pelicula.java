@@ -6,6 +6,7 @@ public class Pelicula extends AudioVisual implements Comparable<Pelicula> {
         super(titulo, duracion, genero, ano);
     }
 
+
     @Override
     public int compareTo(Pelicula o) {
         String t1 = this.getTitulo();

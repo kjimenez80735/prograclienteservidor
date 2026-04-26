@@ -61,6 +61,8 @@ public class ClienteUI extends JFrame {
         add(tableScroll, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
 
+
+
         // Add action listener for "Ver" button
         verDocumentosButton.addActionListener(e -> {
             new Thread(() -> {
