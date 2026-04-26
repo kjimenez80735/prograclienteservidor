@@ -1,3 +1,4 @@
+// File: ClienteUI.java
 package org.example;
 
 import javax.swing.*;
@@ -15,13 +16,31 @@ public class ClienteUI extends JFrame {
     private DefaultTableModel tableModel;
     private JButton verDocumentosButton, agregarDocumentoButton, borrarDocumentoButton;
 
+    // Radio buttons
+    private JRadioButton verRadioButton, agregarRadioButton, eliminarRadioButton;
+    private ButtonGroup radioGroup;
+
     public ClienteUI() {
         setTitle("Cliente UI");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 400);
         setLocationRelativeTo(null);
 
-        // Top panel for labels and text fields
+        // --- Radio buttons panel ---
+        JPanel radioPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        verRadioButton = new JRadioButton("Ver");
+        agregarRadioButton = new JRadioButton("Agregar");
+        eliminarRadioButton = new JRadioButton("Eliminar");
+        radioGroup = new ButtonGroup();
+        radioGroup.add(verRadioButton);
+        radioGroup.add(agregarRadioButton);
+        radioGroup.add(eliminarRadioButton);
+        radioPanel.add(verRadioButton);
+        radioPanel.add(agregarRadioButton);
+        radioPanel.add(eliminarRadioButton);
+        verRadioButton.setSelected(true);
+
+        // --- Input fields panel ---
         JPanel inputPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
@@ -57,10 +76,12 @@ public class ClienteUI extends JFrame {
         buttonPanel.add(borrarDocumentoButton);
 
         setLayout(new BorderLayout());
+        // Add radioPanel at the very top
+        add(radioPanel, BorderLayout.PAGE_START);
         add(inputPanel, BorderLayout.NORTH);
         add(tableScroll, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
-
+        String optionSeleccionada = "";
 
 
         // Add action listener for "Ver" button
@@ -71,7 +92,11 @@ public class ClienteUI extends JFrame {
                         DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
                         DataInputStream dis = new DataInputStream(socket.getInputStream())
                 ) {
-                    dos.writeUTF("verDocumentos");
+                    dos.writeUTF(
+                            getOpcionSeleccionada().equals("agregarDocumental") ? "agregar" :
+                                    getOpcionSeleccionada().equals("eliminarDocumental") ? "eliminar" :
+                                            "verDocumentos"
+                    );
                     dos.flush();
 
                     String response = dis.readUTF();
@@ -81,18 +106,18 @@ public class ClienteUI extends JFrame {
                     SwingUtilities.invokeLater(() -> {
                         tableModel.setRowCount(0); // Clear table
 
-                        // Example response: [DocumentalPojo{id=1, titulo='A', duracion=90, genero='Drama', anio=2020, tema='Nature'}, ...]
                         String[] items = response.split("DocumentalPojo\\{");
                         for (String item : items) {
                             item = item.trim();
                             if (!item.isEmpty() && !item.equals("]")) {
                                 String clean = item.replaceAll("}$", "");
                                 String[] fields = clean.split(", ");
+
                                 String[] row = new String[6];
                                 for (int i = 0; i < fields.length; i++) {
                                     String[] kv = fields[i].split("=", 2);
                                     if (kv.length == 2) {
-                                        row[i] = kv[1].replaceAll("^'|'$", ""); // Remove single quotes if present
+                                        row[i] = kv[1].replaceAll("^'|'$", "");
                                     }
                                 }
                                 tableModel.addRow(row);
@@ -111,5 +136,16 @@ public class ClienteUI extends JFrame {
         SwingUtilities.invokeLater(() -> {
             new ClienteUI().setVisible(true);
         });
+    }
+    // Add this method to ClienteUI.java
+    public String getOpcionSeleccionada() {
+        if (verRadioButton.isSelected()) {
+            return "verDocumentos";
+        } else if (agregarRadioButton.isSelected()) {
+            return "agregar";
+        } else if (eliminarRadioButton.isSelected()) {
+            return "eliminar";
+        }
+        return "";
     }
 }
