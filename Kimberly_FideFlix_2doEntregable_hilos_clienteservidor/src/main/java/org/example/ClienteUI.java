@@ -99,14 +99,13 @@ public class ClienteUI extends JFrame {
                             anioField.getText(),
                             temaField.getText()
                     );
-                    if (getOpcionSeleccionada().equals("agregar")) {
+                    if (getOpcionSeleccionada().equals("verDocumentos")) {
+                        optionSeleccionada.set("verDocumentos");
+                    }else {
                         String fin = "agregar," + parametros;
                         optionSeleccionada.set(fin);
-                    } else if (getOpcionSeleccionada().equals("eliminar")) {
-                        optionSeleccionada.set("eliminar");
-                    } else {
-                        optionSeleccionada.set("verDocumentos");
                     }
+
                     dos.writeUTF(optionSeleccionada.get());
                     dos.flush();
                     String response = dis.readUTF();
@@ -152,7 +151,8 @@ public class ClienteUI extends JFrame {
         return "";
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
+        Thread.sleep(2000); // wait 2 seconds
         SwingUtilities.invokeLater(() -> {
             new ClienteUI().setVisible(true);
         });

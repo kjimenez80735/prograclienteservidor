@@ -40,6 +40,23 @@ public class Servidor {
             List<DocumentalPojo> documentales = null;
             if ("verDocumentos".equals(accion)) {
                 documentales = conn.getAllDocumentales();
+            }else {
+                String[] partes = accion.split(",");
+                accion = "agregar";
+                String tituloField = "";
+                String duracionField = "";
+                String generoField = "";
+                String anioField = "";
+                String temaField = "";
+
+                if (partes.length >= 6) {
+                    tituloField = partes[1];
+                    duracionField = partes[2];
+                    generoField = partes[3];
+                    anioField = partes[4];
+                    temaField = partes[5];
+                }
+                conn.insertDocumental(tituloField, duracionField, generoField, anioField, temaField);
             }
             String response = (documentales != null) ? documentales.toString() : "[]";
             System.out.println("📤 Sending response: " + response);

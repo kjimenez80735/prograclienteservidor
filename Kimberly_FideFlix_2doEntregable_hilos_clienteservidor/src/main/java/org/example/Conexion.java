@@ -47,21 +47,22 @@ public class Conexion {
         }
         return lista;
     }
-
-    public boolean insertDocumental(DocumentalPojo doc) {
+    public void insertDocumental(String tituloField, String duracionField, String generoField, String anioField, String temaField) {
         String sql = "INSERT INTO Documental (titulo, duracion, genero, anio, tema) VALUES (?, ?, ?, ?, ?)";
+
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, doc.getTitulo());
-            ps.setInt(2, doc.getDuracion());
-            ps.setString(3, doc.getGenero());
-            ps.setInt(4, doc.getAnio());
-            ps.setString(5, doc.getTema());
-            int rows = ps.executeUpdate();
-            return rows > 0;
+
+            ps.setString(1, tituloField);
+            ps.setInt(2, Integer.parseInt(duracionField));
+            ps.setString(3, generoField);
+            ps.setInt(4, Integer.parseInt(anioField));
+            ps.setString(5, temaField);
+
+            ps.executeUpdate();
+
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
     }
 
@@ -79,5 +80,9 @@ public class Conexion {
 
         }
     }
+
+
+
+
 }
 
